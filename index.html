@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CALMATEX - Generador de Sensibilidad Free Fire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Su CSS permanece sin cambios */
+        :root {
+            --primary: #00ff88;
+            --secondary: #00d1ff;
+            --dark: #0a0a1a;
+            --darker: #050510;
+            --accent: #ff00aa;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--dark);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 209, 255, 0.15) 0%, transparent 50%);
+        }
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float 6s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(0); opacity: 0; }
+            50% { transform: translateY(-100vh) scale(1); opacity: 0.6; }
+        }
+        .line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--secondary), transparent);
+            animation: scan 4s linear infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            letter-spacing: 3px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(0, 255, 136, 0.5); }
+            to { text-shadow: 0 0 40px rgba(0, 255, 136, 0.8), 0 0 60px rgba(0, 209, 255, 0.6); }
+        }
+        .subtitle {
+            font-size: 1.3rem;
+            color: #aaa;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+        .card {
+            background: rgba(10, 10, 26, 0.85);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.2);
+            border-color: var(--primary);
+        }
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #ccc;
+            font-size: 1.1rem;
+        }
+        select {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+        .btn-generate {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            margin-top: 20px;
+            background: linear-gradient(45deg, var(--primary), #00b863);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-generate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        .btn-generate:hover::before {
+            left: 100%;
+        }
+        .btn-generate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 255, 136, 0.6);
+        }
+        #resultado {
+            display: none;
+            margin-top: 20px;
+            padding: 25px;
+            background: rgba(5, 5, 16, 0.9);
+            border-radius: 15px;
+            border: 1px solid var(--primary);
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .sensibilidad-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed rgba(0, 255, 136, 0.2);
+            font-size: 1.1rem;
+        }
+        .sensibilidad-item:last-child {
+            border-bottom: none;
+        }
+        .sensibilidad-item span:first-child {
+            color: #aaa;
+        }
+        .sensibilidad-item span:last-child {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .dpi-recomendado, .boton-disparo {
+            background: rgba(0, 209, 255, 0.1);
+            border: 1px solid var(--secondary);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .boton-disparo {
+            background: rgba(255, 0, 170, 0.1);
+            border-color: var(--accent);
+        }
+        .copy-btn {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: var(--primary);
+            color: #000;
+        }
+        .music-player {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+        .music-trigger-area {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-music {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease, transform 0.5s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5), 0 5px 15px rgba(0, 209, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateX(0);
+            animation: neon-glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes neon-glow {
+            from { box-shadow: 0 0 20px rgba(0, 255, 136, 0.5), 0 5px 15px rgba(0, 209, 255, 0.4); }
+            to { box-shadow: 0 0 30px rgba(0, 255, 136, 0.8), 0 5px 20px rgba(0, 209, 255, 0.6); }
+        }
+        .btn-music.hidden {
+            transform: translateX(100px);
+        }
+        .btn-music svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .btn-music svg.fade {
+            opacity: 0;
+            transform: scale(0.8) rotate(360deg);
+        }
+        .btn-music.playing {
+            animation: pulse 2s infinite ease-in-out, rotate-slow 3s linear infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes rotate-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .btn-music::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-music:hover::before {
+            left: 100%;
+        }
+        .btn-music:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.8), 0 5px 25px rgba(0, 209, 255, 0.6);
+        }
+        .btn-music::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--primary), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .btn-music:hover::after {
+            opacity: 1;
+            animation: scan-line 1s linear infinite;
+        }
+        @keyframes scan-line {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .btn-music:active {
+            transform: rotate(10deg);
+            transition: transform 0.1s ease;
+        }
+        .volume-control {
+            position: absolute;
+            top: 80px;
+            right: 0;
+            width: 120px;
+            padding: 10px;
+            background: rgba(10, 10, 26, 0.85);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .volume-control.hidden {
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+        .volume-control input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            height: 5px;
+            outline: none;
+        }
+        .volume-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            cursor: pointer;
+        }
+        .volume-control input[type="range"]::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            cursor: pointer;
+            border: none;
+        }
+        #youtube-player {
+            display: none;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .logo { font-size: 2.8rem; }
+            .container { padding: 15px; }
+            .card { padding: 20px; }
+            .music-player { top: 10px; right: 10px; }
+            .music-trigger-area { width: 80px; height: 80px; }
+            .btn-music { width: 60px; height: 60px; }
+            .btn-music svg { width: 20px; height: 20px; }
+            .btn-music.hidden { transform: translateX(80px); }
+            .volume-control { top: 70px; width: 100px; }
+            .btn-music:hover { transform: translateY(-2px) scale(1.05); }
+            .btn-music.playing { animation: pulse 2s infinite ease-in-out, rotate-slow 5s linear infinite; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation" id="bg-animation"></div>
+    <div class="container">
+        <header>
+            <h1 class="logo">CALMATEX</h1>
+            <p class="subtitle">Generador Inteligente de Sensibilidad + Botón de Disparo</p>
+        </header>
+        <div class="music-player">
+            <div class="music-trigger-area">
+                <button class="btn-music" id="music-toggle"><span id="music-icon"></span></button>
+                <div class="volume-control hidden" id="volume-control">
+                    <input type="range" id="volume-slider" min="0" max="100" value="50">
+                </div>
+            </div>
+            <div id="youtube-player"></div>
+        </div>
+        <div class="card">
+            <h2>Configura tu Celular</h2>
+            <div class="form-group">
+                <label for="modelo-celular">Modelo de Celular</label>
+                <select id="modelo-celular">
+                    <optgroup label="Samsung">
+                        <option value="samsung-s24">Galaxy S24 Ultra</option>
+                        <option value="samsung-a73">Galaxy A73 / A54</option>
+                        <option value="samsung-a34">Galaxy A34 / A14</option>
+                    </optgroup>
+                    <optgroup label="Apple">
+                        <option value="iphone-15">iPhone 15 Pro Max</option>
+                        <option value="iphone-13">iPhone 13 / 12</option>
+                    </optgroup>
+                    <optgroup label="Xiaomi / Redmi / POCO">
+                        <option value="poco-x6">POCO X6 Pro / Note 13 Pro+</option>
+                        <option value="mi11-lite">Mi 11 Lite 5G / 5G NE</option>
+                        <option value="redmi-note12">Redmi Note 12 / POCO M5</option>
+                        <option value="redmi-note8">Redmi Note 8</option>
+                        <option value="redmi-9">Redmi 9 / 9A</option>
+                    </optgroup>
+                    <optgroup label="Motorola">
+                        <option value="moto-g84">Moto G84 / G73</option>
+                        <option value="moto-g54">Moto G54 / G34</option>
+                    </optgroup>
+                    <optgroup label="Realme">
+                        <option value="realme-11">Realme 11 Pro / GT Neo</option>
+                        <option value="realme-c55">Realme C55 / C53</option>
+                    </optgroup>
+                    <optgroup label="Huawei">
+                        <option value="huawei-p60">Huawei P60 Pro</option>
+                        <option value="huawei-nova10">Huawei Nova 10</option>
+                    </optgroup>
+                    <optgroup label="Oppo">
+                        <option value="oppo-reno8">Oppo Reno 8 Pro</option>
+                        <option value="oppo-a78">Oppo A78</option>
+                    </optgroup>
+                    <optgroup label="Otros">
+                        <option value="generic-high">Alta Gama (120Hz+)</option>
+                        <option value="generic-mid">Media Gama (90Hz)</option>
+                        <option value="generic-low">Básico (60Hz)</option>
+                        <option value="generic-ultra">Ultra Alta Gama (144Hz)</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="estilo-juego">Estilo de Juego</label>
+                <select id="estilo-juego">
+                    <option value="rush">Rush (Agresivo)</option>
+                    <option value="equilibrado" selected>Equilibrado</option>
+                    <option value="camper">Camper (Defensivo)</option>
+                    <option value="headshot">Headshot (Preciso)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="nivel-experiencia">Experiencia en Free Fire</label>
+                <select id="nivel-experiencia">
+                    <option value="principiante">Principiante</option>
+                    <option value="intermedio" selected>Intermedio</option>
+                    <option value="avanzado">Avanzado</option>
+                    <option value="pro">Pro Player</option>
+                </select>
+            </div>
+            <button class="btn-generate" id="generar-sensibilidad">
+                GENERAR SENSI + BOTÓN
+            </button>
+        </div>
+        <div id="resultado" class="card">
+            <h2>Tu Configuración ÉPICA</h2>
+           
+            <div id="dpi-info" class="dpi-recomendado" style="display: none;">
+                <strong>DPI Recomendado:</strong> <span id="dpi-valor"></span>
+            </div>
+            <div id="boton-info" class="boton-disparo" style="display: none;">
+                <strong>Botón de Disparo:</strong>
+                <span id="boton-lado"></span> |
+                Tamaño: <span id="boton-tamano"></span> |
+                Opacidad: <span id="boton-opacidad"></span>%
+            </div>
+            <div id="configuracion-lista"></div>
+            <button class="btn-generate" onclick="copiarTodo()">COPIAR TODO (SENSI + DPI + BOTÓN)</button>
+        </div>
+        <footer>
+            <p>CALMATEX © 2025 | Optimizado para <strong>Free Fire MAX</strong> | <strong>¡Headshots garantizados!</strong></p>
+        </footer>
+    </div>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        // YouTube Player API - MODIFICADO PARA LISTA DE REPRODUCCIÓN
+        let player;
+        let isPlaying = false;
+        const playIcon = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        const pauseIcon = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
+        // NUEVO: Matriz de IDs de videos (reemplace con sus videos de música)
+        const videoIds = [
+            'wJnBTPUQS5A',  // Su video original
+            'dQw4w9WgXcQ',  // Ejemplo 1: Video de música libre
+            'kJQP7kiw5Fk'   // Ejemplo 2: Otro video de música libre
+            // Agregue más IDs aquí, separados por comas
+        ];
+
+        function onYouTubeIframeAPIReady() {
+            // MODIFICADO: Usar el primer ID como video inicial y la lista completa como playlist
+            const playlist = videoIds.join(',');  // Une los IDs en una cadena separada por comas
+            player = new YT.Player('youtube-player', {
+                height: '0',
+                width: '0',
+                videoId: videoIds[0],  // Inicia con el primer video
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'showinfo': 0,
+                    'rel': 0,
+                    'fs': 0,
+                    'loop': 1,  // Bucle infinito de la playlist
+                    'playlist': playlist  // Lista de reproducción secuencial
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        // El resto de la función onPlayerReady permanece igual
+        function onPlayerReady(event) {
+            const musicToggle = document.getElementById('music-toggle');
+            const musicIcon = document.getElementById('music-icon');
+            const musicTriggerArea = document.querySelector('.music-trigger-area');
+            const volumeControl = document.getElementById('volume-control');
+            const volumeSlider = document.getElementById('volume-slider');
+            musicIcon.innerHTML = playIcon; // Ícono inicial: play
+            let hideTimeout;
+            // Establecer volumen inicial
+            player.setVolume(50); // Volumen inicial al 50%
+            volumeSlider.value = 50;
+            // Función para mostrar el botón y el control de volumen
+            function showButton() {
+                musicToggle.classList.remove('hidden');
+                volumeControl.classList.remove('hidden');
+                clearTimeout(hideTimeout);
+                hideTimeout = setTimeout(() => {
+                    musicToggle.classList.add('hidden');
+                    volumeControl.classList.add('hidden');
+                }, 3000); // Oculta después de 3 segundos de inactividad
+            }
+            // Función para reiniciar el temporizador
+            function resetHideTimeout() {
+                clearTimeout(hideTimeout);
+                hideTimeout = setTimeout(() => {
+                    musicToggle.classList.add('hidden');
+                    volumeControl.classList.add('hidden');
+                }, 3000);
+            }
+            // Mostrar botón y control al entrar en el área
+            musicTriggerArea.addEventListener('mouseenter', showButton);
+            // Reiniciar temporizador al interactuar con el botón o el control
+            musicToggle.addEventListener('mouseenter', resetHideTimeout);
+            volumeControl.addEventListener('mouseenter', resetHideTimeout);
+            // Control de volumen
+            volumeSlider.addEventListener('input', function() {
+                const volume = volumeSlider.value;
+                player.setVolume(volume);
+                resetHideTimeout();
+            });
+            // Toggle play/pause
+            musicToggle.addEventListener('click', function() {
+                if (isPlaying) {
+                    player.pauseVideo();
+                    musicIcon.classList.add('fade');
+                    setTimeout(() => {
+                        musicIcon.innerHTML = playIcon;
+                        musicIcon.classList.remove('fade');
+                    }, 300);
+                    musicToggle.classList.remove('playing');
+                    isPlaying = false;
+                } else {
+                    player.playVideo();
+                    musicIcon.classList.add('fade');
+                    setTimeout(() => {
+                        musicIcon.innerHTML = pauseIcon;
+                        musicIcon.classList.remove('fade');
+                    }, 300);
+                    musicToggle.classList.add('playing');
+                    isPlaying = true;
+                }
+                resetHideTimeout();
+            });
+            // Iniciar temporizador para ocultar después de 3 segundos
+            hideTimeout = setTimeout(() => {
+                musicToggle.classList.add('hidden');
+                volumeControl.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Su código de partículas de fondo permanece sin cambios
+        const bgAnimation = document.getElementById('bg-animation');
+        for (let i = 0; i < 80; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            p.style.width = `${Math.random() * 4 + 1}px`;
+            p.style.height = p.style.width;
+            p.style.left = `${Math.random() * 100}%`;
+            p.style.animationDelay = `${Math.random() * 6}s`;
+            p.style.animationDuration = `${Math.random() * 8 + 4}s`;
+            bgAnimation.appendChild(p);
+        }
+        for (let i = 0; i < 5; i++) {
+            const line = document.createElement('div');
+            line.classList.add('line');
+            line.style.top = `${Math.random() * 100}%`;
+            line.style.animationDelay = `${Math.random() * 4}s`;
+            line.style.animationDuration = `${Math.random() * 3 + 3}s`;
+            bgAnimation.appendChild(line);
+        }
+
+        // Su código de configuración de sensibilidad permanece sin cambios
+        const configs = {
+            'samsung-s24': { sensi: {g:145,p:160,x2:155,x4:140,f:125,c:130}, dpi: 888, boton: {lado:'derecha', tam: 70, op: 85} },
+            'samsung-a73': { sensi: {g:130,p:145,x2:140,x4:130,f:115,c:120}, dpi: 788, boton: {lado:'derecha', tam: 75, op: 80} },
+            'samsung-a34': { sensi: {g:110,p:125,x2:120,x4:110,f:95,c:100}, dpi: 488, boton: {lado:'derecha', tam: 80, op: 75} },
+            'iphone-15': { sensi: {g:150,p:165,x2:160,x4:145,f:130,c:135}, dpi: 411, boton: {lado:'derecha', tam: 65, op: 90} },
+            'iphone-13': { sensi: {g:135,p:150,x2:145,x4:135,f:120,c:125}, dpi: 411, boton: {lado:'derecha', tam: 68, op: 88} },
+            'poco-x6': { sensi: {g:148,p:162,x2:158,x4:143,f:128,c:132}, dpi: 888, boton: {lado:'derecha', tam: 68, op: 87} },
+            'mi11-lite': { sensi: {g:155,p:170,x2:165,x4:150,f:135,c:140}, dpi: 888, boton: {lado:'derecha', tam: 66, op: 90} },
+            'redmi-note12': { sensi: {g:128,p:140,x2:135,x4:125,f:110,c:115}, dpi: 788, boton: {lado:'derecha', tam: 76, op: 78} },
+            'redmi-note8': { sensi: {g:175,p:150,x2:150,x4:180,f:120,c:200}, dpi: 788, boton: {lado:'derecha', tam: 82, op: 70} },
+            'redmi-9': { sensi: {g:105,p:115,x2:110,x4:100,f:85,c:90}, dpi: 488, boton: {lado:'derecha', tam: 85, op: 65} },
+            'moto-g84': { sensi: {g:138,p:152,x2:148,x4:135,f:118,c:125}, dpi: 788, boton: {lado:'derecha', tam: 72, op: 82} },
+            'moto-g54': { sensi: {g:120,p:132,x2:128,x4:118,f:100,c:108}, dpi: 588, boton: {lado:'derecha', tam: 78, op: 75} },
+            'realme-11': { sensi: {g:150,p:165,x2:160,x4:135,f:130,c:135}, dpi: 888, boton: {lado:'derecha', tam: 67, op: 88} },
+            'realme-c55': { sensi: {g:112,p:125,x2:120,x4:108,f:92,c:98}, dpi: 488, boton: {lado:'derecha', tam: 80, op: 72} },
+            'generic-high': { sensi: {g:142,p:158,x2:152,x4:138,f:122,c:128}, dpi: 888, boton: {lado:'derecha', tam: 70, op: 85} },
+            'generic-mid': { sensi: {g:125,p:138,x2:132,x4:122,f:105,c:110}, dpi: 788, boton: {lado:'derecha', tam: 75, op: 80} },
+            'generic-low': { sensi: {g:105,p:118,x2:112,x4:100,f:85,c:90}, dpi: 488, boton: {lado:'derecha', tam: 85, op: 70} },
+            'huawei-p60': { sensi: {g:145,p:160,x2:155,x4:140,f:125,c:130}, dpi: 888, boton: {lado:'derecha', tam: 68, op: 85} },
+            'huawei-nova10': { sensi: {g:130,p:145,x2:140,x4:130,f:115,c:120}, dpi: 788, boton: {lado:'derecha', tam: 75, op: 80} },
+            'oppo-reno8': { sensi: {g:140,p:155,x2:150,x4:135,f:120,c:125}, dpi: 888, boton: {lado:'derecha', tam: 70, op: 87} },
+            'oppo-a78': { sensi: {g:115,p:130,x2:125,x4:115,f:100,c:105}, dpi: 588, boton: {lado:'derecha', tam: 78, op: 75} },
+            'generic-ultra': { sensi: {g:155,p:170,x2:165,x4:150,f:135,c:140}, dpi: 988, boton: {lado:'derecha', tam: 65, op: 90} }
+        };
+        // Modificadores por estilo y experiencia
+        const mods = {
+            estilo: {
+                rush: {g:15,p:20,x2:18,x4:15,f:10,c:25, boton:{tam:5, op:-5}},
+                equilibrado: {g:0,p:0,x2:0,x4:0,f:0,c:0, boton:{tam:0, op:0}},
+                camper: {g:-10,p:-15,x2:-12,x4:-10,f:5,c:-20, boton:{tam:8, op:10}},
+                headshot: {g:-5,p:10,x2:8,x4:5,f:15,c:-10, boton:{tam:-6, op:5}}
+            },
+            experiencia: {
+                principiante: {g:-15,p:-20,x2:-18,x4:-15,f:-20,c:-25, boton:{tam:10, op:-10}},
+                intermedio: {g:0,p:0,x2:0,x4:0,f:0,c:0, boton:{tam:0, op:0}},
+                avanzado: {g:10,p:12,x2:10,x4:8,f:10,c:15, boton:{tam:-3, op:3}},
+                pro: {g:20,p:25,x2:22,x4:18,f:20,c:30, boton:{tam:-8, op:8}}
+            }
+        };
+        document.getElementById('generar-sensibilidad').addEventListener('click', function(e) {
+            e.preventDefault();
+            const modelo = document.getElementById('modelo-celular').value;
+            const estilo = document.getElementById('estilo-juego').value;
+            const exp = document.getElementById('nivel-experiencia').value;
+            const base = configs[modelo];
+            const mEst = mods.estilo[estilo];
+            const mExp = mods.experiencia[exp];
+            const variacion = () => Math.floor(Math.random() * 11) - 5;
+            const sensi = {
+                g: Math.max(50, Math.min(200, base.sensi.g + mEst.g + mExp.g + variacion())),
+                p: Math.max(50, Math.min(200, base.sensi.p + mEst.p + mExp.p + variacion())),
+                x2: Math.max(50, Math.min(200, base.sensi.x2 + mEst.x2 + mExp.x2 + variacion())),
+                x4: Math.max(50, Math.min(200, base.sensi.x4 + mEst.x4 + mExp.x4 + variacion())),
+                f: Math.max(50, Math.min(200, base.sensi.f + mEst.f + mExp.f + variacion())),
+                c: Math.max(50, Math.min(200, base.sensi.c + mEst.c + mExp.c + variacion()))
+            };
+            const boton = {
+                lado: base.boton.lado,
+                tam: Math.max(60, Math.min(100, base.boton.tam + mEst.boton.tam + mExp.boton.tam + variacion())),
+                op: Math.max(60, Math.min(100, base.boton.op + mEst.boton.op + mExp.boton.op + variacion()))
+            };
+            // Mostrar resultados
+            // Ocultar DPI para iPhones, mostrar para otros dispositivos
+            if (modelo === 'iphone-15' || modelo === 'iphone-13') {
+                document.getElementById('dpi-info').style.display = 'none';
+            } else {
+                document.getElementById('dpi-valor').textContent = base.dpi;
+                document.getElementById('dpi-info').style.display = 'block';
+            }
+            document.getElementById('boton-lado').textContent = boton.lado.toUpperCase();
+            document.getElementById('boton-tamano').textContent = boton.tam + 'px';
+            document.getElementById('boton-opacidad').textContent = boton.op;
+            document.getElementById('boton-info').style.display = 'block';
+            const lista = document.getElementById('configuracion-lista');
+            const nombres = {g:"General", p:"Punto Rojo", x2:"2x", x4:"4x", f:"Francotirador", c:"Cámara 360°"};
+            lista.innerHTML = '';
+            for (const [k, v] of Object.entries(sensi)) {
+                const item = document.createElement('div');
+                item.className = 'sensibilidad-item';
+                item.innerHTML = `<span>${nombres[k]}</span><span>${v} <button class="copy-btn" onclick="copiar(${v})">COPIAR</button></span>`;
+                lista.appendChild(item);
+            }
+            document.getElementById('resultado').style.display = 'block';
+            document.getElementById('resultado').scrollIntoView({ behavior: 'smooth' });
+        });
+        function copiar(valor) {
+            navigator.clipboard.writeText(valor.toString());
+            alert(`¡Copiado: ${valor}!`);
+        }
+        function copiarTodo() {
+            const modelo = document.getElementById('modelo-celular').value;
+            const sensi = Array.from(document.querySelectorAll('.sensibilidad-item span:last-child'))
+                .map(s => s.textContent.trim().split(' ')[0]).join(' | ');
+            const boton = `${document.getElementById('boton-lado').textContent} | ${document.getElementById('boton-tamano').textContent} | ${document.getElementById('boton-opacidad').textContent}%`;
+            let todo;
+            if (modelo === 'iphone-15' || modelo === 'iphone-13') {
+                todo = `SENSI: ${sensi}\nBOTÓN: ${boton}`;
+            } else {
+                const dpi = document.getElementById('dpi-valor').textContent;
+                todo = `SENSI: ${sensi}\nDPI: ${dpi}\nBOTÓN: ${boton}`;
+            }
+            navigator.clipboard.writeText(todo);
+            alert("¡TODO COPIADO!\n\n" + todo);
+        }
+    </script>
+</body>
+</html>
